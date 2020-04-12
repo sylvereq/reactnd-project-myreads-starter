@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import * as BooksAPI from './BooksAPI'
 import BookEntry from './BookEntry'
+import { Link } from 'react-router-dom'
 
 class SearchBooks extends Component {
       state = {
@@ -8,40 +9,65 @@ class SearchBooks extends Component {
             bookSearchString: ""
       }
 
-      searchBooks = (searchString) => {
-            BooksAPI.search(searchString).then((books) => {
-                  console.log(books)
-                  this.setState(() => ( {
-                        books
-                  }))
-            })
-
-      }
-
       componentDidMount () {
             //this.getAllBooks();
       }
 
       onSearchChanged = (value) => {
-            this.setState(() => ({
-                  bookSearchString: value
+
+            this.setState(() => ( {
+                  bookSearchString: value 
             }))
+
+            if (value === '') {
+                  this.setState(() => ( {
+                        books: []
+                  }))
+            } else {
+                  BooksAPI.search(value).then((books) => {
+                        
+                        
+
+
+                        if (books === undefined || books.error || value === '') {
+                        } else {
+                              books.forEach((book) => {
+                                    this.props.categoryCurrentlyReading.forEach((currentlyReading) => {
+                                          if(book.id === currentlyReading.id) {
+                                                book.categoryName = "categoryCurrentlyReading"
+                                          }
+                                    })
+      
+                                    this.props.categoryWantToRead.forEach((wantToRead) => {
+                                          if(book.id === wantToRead.id) {
+                                                book.categoryName = "categoryWantToRead"
+                                          }
+                                    })
+      
+                                    this.props.categoryRead.forEach((read) => {
+                                          if(book.id === read.id) {
+                                                book.categoryName = "categoryRead"
+                                          }
+                                    })
+                              })
+                              console.log(books)
+
+                              if(this.state.bookSearchString !== '')
+                                    this.setState(() => ( {
+                                          books
+                                    }))
+                        }
+                  })
+            }
       }
   
       render() {
             const { books, bookSearchString } = this.state;
 
-            const showingBooks = bookSearchString === ''
-            ? books
-            : books.filter((c) => c.title.toLowerCase().includes(bookSearchString.toLowerCase() ||  c.authors.filter((author) => {
-                        author.toLowerCase().includes(bookSearchString.toLowerCase())
-                  }).length > 0 )
-            )
-
             return (
                   <div className="search-books">
                         <div className="search-books-bar">
-                              <button className="close-search" onClick={() => this.setState({ showSearchPage: false })}>Close</button>
+                              <Link to='/' className="close-search" >Close</Link>
                               <div className="search-books-input-wrapper">
                               {/*
                                     NOTES: The search from BooksAPI is limited to a particular set of search terms.
@@ -57,8 +83,8 @@ class SearchBooks extends Component {
                         </div>
                         <div className="search-books-results">
                               <ol className="books-grid">
-                                    {showingBooks.map((book) => (
-                                          <BookEntry  key={book.id} book={book} />
+                                    {books.map((book) => (
+                                          <BookEntry categoryName={book.categoryName} updateCategory={this.props.updateCategory} key={book.id} book={book} />
                                     ))}
                               </ol>
                         </div>

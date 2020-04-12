@@ -13,20 +13,109 @@ class BooksApp extends React.Component {
      * users can use the browser's back and forward buttons to navigate between
      * pages, as well as provide a good URL they can bookmark and share.
      */
-    showSearchPage: false,
     categoryCurrentlyReading: [],
     categoryWantToRead: [],
+    categoryRead: [],
     allBooks: [],
+
+  }
+
+  componentDidMount() {
+    this.getAllBooks();
+  }
+
+  getAllBooks = () => {
+    BooksAPI.getAll().then((books) => {
+      console.log(books)
+
+      this.setState(() => ({
+        categoryCurrentlyReading: books.filter((book) => book.shelf === 'currentlyReading'),
+        categoryWantToRead: books.filter((book) => book.shelf === 'wantToRead'),
+        categoryRead: books.filter((book) => book.shelf === 'read'),
+        allBooks: books
+      }))
+
+    })
+  }
+
+  updateCategory = (event, book, categoryName) => {
+
+    const targetCategory = event.target.value;
+    console.log("categoryName: " + categoryName)
+    console.log("TargetCategory: " + targetCategory)
+
+    if (categoryName !== targetCategory) {
+      this.removeBookFromCategory(book, categoryName);
+
+      if (targetCategory === 'categoryCurrentlyReading') {
+
+        this.setState((oldvalue) => {
+          const categoryCurrentlyReading = oldvalue.categoryCurrentlyReading.concat(book)
+          return { categoryCurrentlyReading }
+        })
+      }
+      if (targetCategory === 'categoryWantToRead') {
+
+        this.setState((oldvalue) => {
+          const categoryWantToRead = oldvalue.categoryWantToRead.concat(book)
+          return { categoryWantToRead }
+        })
+      }
+      if (targetCategory === 'categoryRead') {
+        this.setState((oldvalue) => {
+          const categoryRead = oldvalue.categoryRead.concat(book)
+          return { categoryRead }
+        })
+      }
+
+      BooksAPI.update(book, event.target.value).then((json) => {
+        console.log(json)
+
+      })
+    }
+  }
+
+  removeBookFromCategory = (book, currentCategory) => {
+    if (currentCategory === 'categoryCurrentlyReading') {
+      this.setState({
+        categoryCurrentlyReading: this.state.categoryCurrentlyReading.filter(function (currentbook) {
+          return currentbook.id !== book.id
+        })
+      })
+    }
+    if (currentCategory === 'categoryWantToRead') {
+      this.setState({
+        categoryWantToRead: this.state.categoryWantToRead.filter(function (currentbook) {
+          return currentbook.id !== book.id
+        })
+      })
+    }
+    if (currentCategory === 'categoryRead') {
+      this.setState({
+        categoryRead: this.state.categoryRead.filter(function (currentbook) {
+          return currentbook.id !== book.id
+        })
+      })
+    }
   }
 
   render() {
     return (
       <div className="app">
         <Route path='/search' render={() => (
-          <SearchBooks />
+          <SearchBooks
+            categoryCurrentlyReading={this.state.categoryCurrentlyReading}
+            categoryWantToRead={this.state.categoryWantToRead}
+            categoryRead={this.state.categoryRead}
+            updateCategory={this.updateCategory} />
         )} />
         <Route exact path='/' render={() => (
-          <ListBooks />
+          <ListBooks
+            categoryCurrentlyReading={this.state.categoryCurrentlyReading}
+            categoryWantToRead={this.state.categoryWantToRead}
+            categoryRead={this.state.categoryRead}
+            updateCategory={this.updateCategory}
+          />
         )} />
       </div>
     )

@@ -1,12 +1,13 @@
-import React, { Component }  from 'react';
+import React  from 'react';
 
 function BookEntry(props) {
       const book = props.book;
+      const categoryName = props.categoryName;
       const style = {
             width: 128,
             height: 193,
-            backgroundImage: 'url('+book.imageLinks.thumbnail+')'
-      }
+            backgroundImage: `url(${book.imageLinks.thumbnail})`,
+      }   
 
       return (
             <li>
@@ -14,17 +15,19 @@ function BookEntry(props) {
                         <div className="book-top">
                         <div className="book-cover" style={style}></div>
                         <div className="book-shelf-changer">
-                              <select>
-                              <option value="move" disabled>Move to...</option>
-                              <option value="currentlyReading">Currently Reading</option>
-                              <option value="wantToRead">Want to Read</option>
-                              <option value="read">Read</option>
-                              <option value="none">None</option>
+                              <select onChange={(event) => props.updateCategory(event, book, categoryName)}>
+                                    <option value="move" disabled selected>Move to...</option>
+                                    <option className={categoryName === 'categoryCurrentlyReading' ? 'marked': null} value="categoryCurrentlyReading">
+                                          Currently Reading
+                                    </option>
+                                    <option className={categoryName === 'categoryWantToRead' ? 'marked': null} value="categoryWantToRead">Want to Read</option>
+                                    <option className={categoryName === 'categoryRead' ? 'marked': null} value="categoryRead" >Read</option>
+                                    <option value="none">None</option>
                               </select>
                         </div>
                         </div>
                         <div className="book-title">{book.title}</div>
-                        {book.authors.map((author) => (
+                        {book.authors && book.authors.map((author) => (
                               <div key={author} className="book-authors">{author}</div>
                         ))}
                   </div>
