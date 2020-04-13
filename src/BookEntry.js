@@ -6,7 +6,7 @@ function BookEntry(props) {
       const style = {
             width: 128,
             height: 193,
-            backgroundImage: `url(${book.imageLinks.thumbnail})`,
+            backgroundImage: `url(${(book.imageLinks && book.imageLinks.thumbnail) && book.imageLinks.thumbnail})`,
       }   
 
       return (
@@ -15,8 +15,8 @@ function BookEntry(props) {
                         <div className="book-top">
                         <div className="book-cover" style={style}></div>
                         <div className="book-shelf-changer">
-                              <select onChange={(event) => props.updateCategory(event, book, categoryName)}>
-                                    <option value="move" disabled selected>Move to...</option>
+                              <select defaultValue={'move'} onChange={(event) => props.updateCategory(event, book, categoryName)}>
+                                    <option value="move" disabled>Move to...</option>
                                     <option className={categoryName === 'categoryCurrentlyReading' ? 'marked': null} value="categoryCurrentlyReading">
                                           Currently Reading
                                     </option>

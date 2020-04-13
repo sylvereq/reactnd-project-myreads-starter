@@ -26,7 +26,7 @@ class BooksApp extends React.Component {
 
   getAllBooks = () => {
     BooksAPI.getAll().then((books) => {
-      console.log(books)
+      console.log("getting all books"+books)
 
       this.setState(() => ({
         categoryCurrentlyReading: books.filter((book) => book.shelf === 'currentlyReading'),
@@ -45,32 +45,36 @@ class BooksApp extends React.Component {
     console.log("TargetCategory: " + targetCategory)
 
     if (categoryName !== targetCategory) {
-      this.removeBookFromCategory(book, categoryName);
+      let updateCategoryName = ""
 
       if (targetCategory === 'categoryCurrentlyReading') {
-
+        updateCategoryName = 'currentlyReading'
         this.setState((oldvalue) => {
           const categoryCurrentlyReading = oldvalue.categoryCurrentlyReading.concat(book)
           return { categoryCurrentlyReading }
         })
       }
       if (targetCategory === 'categoryWantToRead') {
-
+        updateCategoryName = 'wantToRead'
         this.setState((oldvalue) => {
           const categoryWantToRead = oldvalue.categoryWantToRead.concat(book)
           return { categoryWantToRead }
         })
       }
       if (targetCategory === 'categoryRead') {
+        updateCategoryName = 'read'
         this.setState((oldvalue) => {
           const categoryRead = oldvalue.categoryRead.concat(book)
           return { categoryRead }
         })
       }
 
-      BooksAPI.update(book, event.target.value).then((json) => {
+      BooksAPI.update(book, updateCategoryName).then((json) => {
+        console.log("Response")
         console.log(json)
 
+      }).then(() => {
+        this.removeBookFromCategory(book, categoryName);
       })
     }
   }

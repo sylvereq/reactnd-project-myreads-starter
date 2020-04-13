@@ -64,6 +64,13 @@ class SearchBooks extends Component {
       render() {
             const { books, bookSearchString } = this.state;
 
+            const showingBooks = bookSearchString === ''
+            ? books
+            : books.filter((c) => c.title.toLowerCase().includes(bookSearchString.toLowerCase() ||  (c.authors.filter((author) => {
+                  author.toLowerCase().includes(bookSearchString.toLowerCase())
+            }).length > 0) )
+            )
+
             return (
                   <div className="search-books">
                         <div className="search-books-bar">
@@ -83,7 +90,7 @@ class SearchBooks extends Component {
                         </div>
                         <div className="search-books-results">
                               <ol className="books-grid">
-                                    {books.map((book) => (
+                                    {showingBooks.map((book) => (
                                           <BookEntry categoryName={book.categoryName} updateCategory={this.props.updateCategory} key={book.id} book={book} />
                                     ))}
                               </ol>
